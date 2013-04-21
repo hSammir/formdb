@@ -1,0 +1,192 @@
+<?php
+
+/*
+ * Implementasi hook_menu
+ * Doc: http://api.drupal.org/api/drupal/modules%21system%21system.api.php/function/hook_menu/7
+ */
+function formdb_menu(){
+    $items['formdb'] = array(
+        'title' => t('List Nilai'),
+        'page callback' => 'formdb_retrieve',
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM
+    );
+    
+    $items['formdb/create'] = array(
+        'title' => t('Tambah data baru'),
+        'page callback' => 'formdb_create',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK
+    );
+    
+    $items['formdb/%/edit'] = array(
+        'title' => t('Edit data'),
+        'page callback' => 'formdb_edit',
+        'page arguments' => array(1),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK
+    );
+    
+    $items['formdb/%/delete'] = array(
+        'title' => t('Delete data'),
+        'page callback' => 'formdb_delete',
+        'page arguments' => array(1),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK 
+    );
+    
+    return $items;
+}
+
+/* 
+ * formdb_retrieve callback
+ */
+function formdb_retrieve(){
+    global $base_url;
+    $page = '';
+    // Query data
+    // Doc: http://api.drupal.org/api/drupal/includes%21database%21database.inc/function/db_query/7
+    $data = db_query('select * from {formdb_nilai}');
+        
+    $page = '<a href="'.$base_url.'/formdb/create">ADD</a><br/>';
+    $page .= '<table><tr><td>NIM</td><td>Kode MTK</td><td>Nilai</td><td>Operasi</td></tr>';
+    while($datum = $data->fetchObject()) {
+        $page .= '<tr><td>'.$datum->nim.'</td><td>'.$datum->kd_mata_kuliah.'</td><td>'.$datum->nilai.'</td><td><a href="'.$base_url.'/formdb/'.$datum->id.'/edit">Edit </a> | <a href="'.$base_url.'/formdb/'.$datum->id.'/delete">Delete</a></td>';
+    }
+    $page .= '</table>';
+                
+    return $page;
+}
+
+/*
+ * formdb_create callback
+ */
+function formdb_create(){
+    return drupal_get_form('formdb_create_form');
+}
+
+/*
+ * formdb_edit callback
+ */
+function formdb_edit($id){
+    return drupal_get_form('formdb_edit_form', $id);
+}
+
+/*
+ * formdb_delete callback
+ */
+function formdb_delete($id){
+    global $base_url;
+    formdb_delete_data($id);
+    return '<p>Data tekah dihapus. <a href="'.$base_url.'/formdb">Kembali</a></p>';
+}
+
+/*
+ * formdb_create_form callback
+ * @return mixed $form
+ */
+function formdb_create_form(){
+    $form['name'] = array();
+    $form['name']['field_ta'] = array(
+        '#title' => 'Tahun akademis',
+        '#type' => 'textfield'
+    );
+    $form['name']['field_nim'] = array(
+        '#title' => 'NIM',
+        '#type' => 'textfield'
+    );
+    $form['name']['field_kd_mtk'] = array(
+        '#title' => 'Kode Mate Kuliah',
+        '#type' => 'textfield'
+    );
+    $form['name']['field_nilai'] = array(
+        '#title' => 'Nilai',
+        '#type' => 'textfield'
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Simpan'        
+    );
+    
+    return $form;
+}
+
+/*
+ * formdb_edit_form callback
+ * @return mixed $form
+ */
+function formdb_edit_form($form, &$form_state, $id){
+    $form['name'] = array();
+    $form['name']['field_ta'] = array(
+        '#title' => 'Tahun akademis',
+        '#type' => 'textfield'
+    );
+    $form['name']['field_nim'] = array(
+        '#title' => 'NIM',
+        '#type' => 'textfield'
+    );
+    $form['name']['field_kd_mtk'] = array(
+        '#title' => 'Kode Mate Kuliah',
+        '#type' => 'textfield'
+    );
+    $form['name']['field_nilai'] = array(
+        '#title' => 'Nilai',
+        '#type' => 'textfield'
+    );
+    $form['name']['field_id'] = array(
+        '#type' => 'hidden',
+        '#value' => $id
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Simpan'        
+    );
+    
+    return $form;
+}
+
+/*
+ * formdb_create_form_submit action
+ * 
+ */
+function formdb_create_form_submit($form, &$form_state){
+    // persiapkan data
+    $data = array(
+        'ta' => $form_state['values']['field_ta'],
+        'nim' => $form_state['values']['field_nim'],
+        'kd_mata_kuliah' => $form_state['values']['field_kd_mtk'],
+        'nilai' => $form_state['values']['field_nilai']
+    );    
+    
+    drupal_write_record('formdb_nilai',$data);
+    drupal_set_message('Data sudah disimpan.');
+}
+
+/*
+ * formdb_edit_form_submit action
+ * @param
+ */
+function formdb_edit_form_submit($form, &$form_state){
+    // persiapkan data
+    $data = array(
+        'id' => $form_state['values']['field_id'],
+        'ta' => $form_state['values']['field_ta'],
+        'nim' => $form_state['values']['field_nim'],
+        'kd_mata_kuliah' => $form_state['values']['field_kd_mtk'],
+        'nilai' => $form_state['values']['field_nilai']        
+    );
+    
+    drupal_write_record('formdb_nilai',$data, array('id'));
+    drupal_set_message('Data sudah disimpan');
+}
+
+/* Hapus data
+ * 
+ * @param int $id
+ * @return void
+ */
+function formdb_delete_data($id){
+    db_query('delete from {formdb_nilai} where id=:id', array(':id' => $id));
+}
+
+?>

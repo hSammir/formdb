@@ -1,0 +1,5 @@
+name = FormDb
+description = Modul demonstrasi form dan database.
+package = FormDb
+core = 7.x
+files[] = formdb.module

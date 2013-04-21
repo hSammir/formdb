@@ -1,0 +1,46 @@
+<?php
+
+/*
+ * Implementasikan hook_schema
+ */
+function formdb_schema(){
+    $schema['formdb_nilai'] = array(
+        'description' => t('Menyimpan informasi nilai (module formdb).'),
+        'fields' => array(
+            'id' => array(
+                'description' => t('Identifikasi utama nilai mahasiswa'),
+                'type' => 'serial',
+                'unsigned' => TRUE,
+                'not null' => TRUE
+            ),
+            'ta' => array(
+                'description' => t('Tahun akademis.'),
+                'type' => 'varchar',
+                'length' => 6,
+                'not null' => TRUE,
+            ),
+            'nim' => array(
+                'description' => t('Nomor induk mahasiswa.'),
+                'type' => 'varchar',
+                'length' => 20,
+                'not null' => TRUE
+            ),
+            'kd_mata_kuliah' => array(
+                'description' => t('Kode mata kuliah.'),
+                'type' => 'varchar',
+                'length' => 10,
+                'not null' => TRUE
+            ),
+            'nilai' => array(
+                'description' => t('Nilai mahasiswa.'),
+                'type' => 'varchar',
+                'length' => 1,
+                'not null' => TRUE
+            )
+        ),
+        'primary key' => array('id')
+    );
+    return $schema;
+}
+
+?>
