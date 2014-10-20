@@ -1,5 +1,5 @@
 name = FormDb
-description = Modul demonstrasi form dan database.
+description = Modul demonstrasi form dan database drupal.
 package = FormDb
 core = 7.x
 files[] = formdb.module
